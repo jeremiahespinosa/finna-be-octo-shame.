@@ -71,6 +71,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 	          Important: Call startPreview() to start updating the preview surface. Preview must 
 	          be started before you can take a picture.
 	          */
+	        
+	        
+	        
+	        
 	        mCamera.startPreview();
 	    }
 	}
