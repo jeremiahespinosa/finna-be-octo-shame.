@@ -1,6 +1,7 @@
 package com.example.cam;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -29,13 +30,29 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 			int height) {
 		// TODO Auto-generated method stub
 		
+		
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		
+		System.out.println("surfaceCreated");
 		try{
 			mCamera.setPreviewDisplay(mHolder);
+		    
+			Camera.Parameters params = mCamera.getParameters();
+		    List<String> focusModes = params.getSupportedFocusModes();
+		    
+		    if(focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)){
+		    	System.out.println("HAS Continuous FOCUS");
+		    	params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+		    }
+		    else{
+		    	System.out.println("does not support continuous focus");
+		    	params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+		    }
+		    
+		    mCamera.setParameters(params);
+		    
 			mCamera.startPreview();
 		}catch(IOException e){
 			Log.d(TAG,"ERROR setting camera preview"+e.getMessage());
@@ -45,46 +62,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
-
+		if(mCamera != null)
+			mCamera.stopPreview();
 		
 	}
 
 	public void setCamera(Camera camera) {
-	    if (mCamera == camera) { return; }
-	    
-	    stopPreviewAndFreeCamera();
-	    
-	    mCamera = camera;
-	    
-	    if (mCamera != null) {
-/*	        List<Size> localSizes = mCamera.getParameters().getSupportedPreviewSizes();
-	        mSupportedPreviewSizes = localSizes;
-	        requestLayout();
-	      */
-	        try {
-	            mCamera.setPreviewDisplay(mHolder);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	      
-	        /*
-	          Important: Call startPreview() to start updating the preview surface. Preview must 
-	          be started before you can take a picture.
-	          */
-	        
-	        
-	        
-	        
-	        mCamera.startPreview();
-	    }
-	}
-
-	private void stopPreviewAndFreeCamera() {
-		// TODO Auto-generated method stub
-		mCamera.stopPreview();
-		mCamera.release();
-		mCamera = null;
-		
+		if(mCamera != null )
+			mCamera.release();
+		mCamera = camera;
 	}
 
 }

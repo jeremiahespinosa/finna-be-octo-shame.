@@ -35,7 +35,7 @@ public class CaptureWithCamera extends Activity{
 	private CameraPreview mPreview;
 	private ImageButton shutterButton;
 	private boolean mAutoFocus = true;
-	FrameLayout preview;
+	FrameLayout frame;
 	
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	protected static final String TAG = "CaptureWithCamera";
@@ -46,29 +46,32 @@ public class CaptureWithCamera extends Activity{
 		setContentView(R.layout.camera_view);
 		System.out.println("CREATE");
 		
-		mPreview = new CameraPreview(this,mCamera);
+		if(safeCameraOpen() ){
+			mPreview = new CameraPreview(this,mCamera);
+			
+			frame = (FrameLayout)findViewById(R.id.camera_preview);
+			frame.addView(mPreview);
+			
+			initUI();	
+			
+		}
 
-		preview = (FrameLayout)findViewById(R.id.camera_preview);
-		preview.addView(mPreview);
-		
-		initUI();	
 	}
 	@Override
 	protected void onPause() {
 		super.onPause();
 		System.out.println("PAUSE");
 		
-		stopPreviewAndFreeCamera();
+		releaseCameraAndPreview();
 	}
 	@Override
 	protected void onResume(){
 		super.onResume();
 		System.out.println("RESUME");
 		
-		if (safeCameraOpen() == true){
+		if (mCamera == null && safeCameraOpen()){
 			System.out.println("Safe camera open inside the if");
 			mPreview.setCamera(mCamera);
-			
 		}
 	}
 	private boolean safeCameraOpen() {
@@ -78,6 +81,7 @@ public class CaptureWithCamera extends Activity{
 	        releaseCameraAndPreview();
 	        mCamera = Camera.open();
 	        mCamera.setDisplayOrientation(90);
+
 	        cam_stat = (mCamera != null);
 	    } catch (Exception e) {
 	        Log.e(getString(R.string.app_name), "failed to open Camera");
@@ -87,40 +91,17 @@ public class CaptureWithCamera extends Activity{
 	    return cam_stat;    
 	}
 	private void releaseCameraAndPreview() {
-	    mPreview.setCamera(null);
+		if(mPreview != null)
+			mPreview.setCamera(null);
 	    if (mCamera != null) {
 	        mCamera.release();
 	        mCamera = null;
 	    }
 	}
-	/**
-	  * When this function returns, mCamera will be null.
-	  */
-	private void stopPreviewAndFreeCamera() {
-
-	    if (mCamera != null) {
-	        /*
-	          Call stopPreview() to stop updating the preview surface.
-	        */
-	        mCamera.stopPreview();
-	    
-	        /*
-	          Important: Call release() to release the camera for use by other applications. 
-	          Applications should release the camera immediately in onPause() (and re-open() it in
-	          onResume()).
-	        */
-	        mCamera.release();
-	    
-	        mCamera = null;
-	    }
-	}
-	
 
 	private void initUI(){
 		System.out.println("init");
 		
-		
-
 		shutterButton = (ImageButton)findViewById(R.id.shutter_button);
 		shutterButton.setOnClickListener(new OnClickListener(){
 
@@ -163,7 +144,10 @@ public class CaptureWithCamera extends Activity{
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			
-			//mCamera.startPreview();
+			System.out.println("onPictureTaken");
+			System.out.println(data.length);
+			
+			
 			File picFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 			
 			if(picFile == null){
@@ -171,12 +155,12 @@ public class CaptureWithCamera extends Activity{
 				return;
 			}
 		    try {
-		    	
+		    	//need to write a temp file to device
 		    	//storing the image on the device
 		        FileOutputStream fos = new FileOutputStream(picFile);
 		        fos.write(data);
 		        fos.close();
-		    		        
+		    	
 		        //get image uri
 		        Uri imageUri = Uri.fromFile(picFile);
 		        System.out.println(imageUri);
@@ -207,24 +191,5 @@ public class CaptureWithCamera extends Activity{
 		}
 		
 	};
-	
-
-/*	private void setFocusParams(){
-	    //checking if camera supports continuous focusing done by the camera
-	    Camera.Parameters params = c.getParameters();
-	    List<String> focusModes = params.getSupportedFocusModes();
-	    
-	    if(focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)){
-	    	System.out.println("HAS Continuous FOCUS");
-	    	params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-	    }
-	    else{
-	    	System.out.println("does not support continuous focus");
-	    	params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-	    }
-	    
-	    c.setParameters(params);
-	}*/
-	
 	
 }//end class
