@@ -169,7 +169,9 @@ public class CaptureWithCamera extends Activity{
 		        startScannerToAddToGallery(imageUri);
 		        
 		        //start activity to edit the image in air capture
-		        
+		        Intent intent = new Intent(CaptureWithCamera.this, PreviewImage.class);
+				startActivity(intent);
+
 		        //for this test project we will just go to another screen to save the image with data
 		     } 
 		    catch (FileNotFoundException e) {

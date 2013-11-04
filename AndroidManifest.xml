@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="12"
+        android:minSdkVersion="14"
         android:targetSdkVersion="18" />
     
 	<uses-permission android:name="android.permission.CAMERA" />
@@ -35,9 +35,14 @@
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".cam.ViewImagesActivity"
+            android:name="com.example.cam.ViewImagesActivity"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name="com.example.cam.PreviewImage"
+            android:screenOrientation="portrait" >
+        </activity>
+        
         
     </application>
 
